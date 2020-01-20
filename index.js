@@ -1,13 +1,14 @@
-const express = require('express');
-const Sentiment = require('sentiment');
-const fetch = require('node-fetch');
-const app = express();
-const router = express.Router();
-const sentiment = new Sentiment();
-app.use('/api',router);
-const hackerNewsAPIUrl = `https://hacker-news.firebaseio.com/v0/`;
-//https://hacker-news.firebaseio.com/v0/
+const express = require('express'); // this is the server platform
+const Sentiment = require('sentiment'); // this is the api for analyzing the sentiment scoring
+const fetch = require('node-fetch'); // this is the fetch module for getting data from other sources
+const app = express(); // init the app server instance
+const router = express.Router(); // init the routing for the api 
+const sentiment = new Sentiment(); // init the sentiment 
+app.use('/api',router); // middleware for using the routing
+const hackerNewsAPIUrl = `https://hacker-news.firebaseio.com/v0/`; //prefix of the hackernews api
 
+
+//get the top stories of the hackernews
  async function getTopStories(){
     const url = hackerNewsAPIUrl+'topstories.json?print=pretty';
     try{
@@ -20,6 +21,7 @@ const hackerNewsAPIUrl = `https://hacker-news.firebaseio.com/v0/`;
     }
   
 }
+// check if the phrase exists in the story title and return the story if so , if not return null or error
 async function getStoryOfPhrase(storyId,phrase){
     const url = hackerNewsAPIUrl+'item/'+storyId+'.json?print=pretty';
     try {
@@ -38,6 +40,7 @@ async function getStoryOfPhrase(storyId,phrase){
   
 }
 
+// get the comments of story by comment id
 async function getCommentsOfStory(commentID){
     
     const url = hackerNewsAPIUrl+'item/'+commentID+'.json?print=pretty';
@@ -51,7 +54,7 @@ async function getCommentsOfStory(commentID){
     }
 
 }
-
+// analyze the comment with the sentiment api scoring 
 async function analyzeStoriesComments(storieIds,phrase){
     try{
         const results = {};
@@ -88,7 +91,6 @@ async function analyzeStoriesComments(storieIds,phrase){
                         
                     } else{
                         return null;
-                       //console.log(story)
                     }
                 });
                 return promiseArray;
@@ -102,7 +104,7 @@ async function analyzeStoriesComments(storieIds,phrase){
         return error;
     }
 }
-
+// start the server on port 3000 
 app.listen(3000,()=>{
     router.get('/sentiment', async (request,response)=>{
         const phrase = request.query.phrase;
